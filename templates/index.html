@@ -772,6 +772,7 @@
 
       const BACKEND_URL = "https://ai-backend-jybc.onrender.com";
 
+
       // Speak function using Web Speech API
       function speak(text) {
         if ('speechSynthesis' in window) {
@@ -828,6 +829,7 @@
         }
       });
 
+
       // Hover to show menu
       toggleMenu.addEventListener('mouseenter', () => {
         menuContent.style.display = 'block';
@@ -838,6 +840,17 @@
           menuContent.style.display = 'none';
         }
       });
+
+      // 💡 Screenshot using html2canvas
+      function takeScreenshot() {
+        html2canvas(document.body).then(function (canvas) {
+          const link = document.createElement("a");
+          link.download = `screenshot_${Date.now()}.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        });
+      }
+
 
       // AI Command Click Handlers
       window.handleCommand = function (command) {
@@ -873,6 +886,14 @@
           recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             wordsElement.innerText = `${transcript}`;
+
+            // 👇 Screenshot command handling
+            if (transcript.includes("screenshot") || transcript.includes("take screenshot")) {
+              takeScreenshot();
+              speak("Screenshot captured successfully.");
+              return;
+            }
+
             fetch('https://ai-backend-jybc.onrender.com/execute_command', {
               method: 'POST',
               headers: {
