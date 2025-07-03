@@ -983,16 +983,16 @@
         </div>
       `).join('');
       
-    //   // Add event listeners to delete buttons
-    //   document.querySelectorAll('.delete-history').forEach(button => {
-    //     button.addEventListener('click', function() {
-    //       const index = parseInt(this.getAttribute('data-index'));
-    //       history.splice(index, 1);
-    //       localStorage.setItem('assistantHistory', JSON.stringify(history));
-    //       renderHistory();
-    //     });
-    //   });
-    // }
+      // Add event listeners to delete buttons
+      document.querySelectorAll('.delete-history').forEach(button => {
+        button.addEventListener('click', function() {
+          const index = parseInt(this.getAttribute('data-index'));
+          history.splice(index, 1);
+          localStorage.setItem('assistantHistory', JSON.stringify(history));
+          renderHistory();
+        });
+      });
+    }
 
     toggleHistoryBtn.addEventListener('click', () => {
       const hidden = historyPanel.classList.toggle('hidden');
