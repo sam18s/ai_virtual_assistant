@@ -251,6 +251,32 @@ with app.app_context():
     db.create_all()
 
 
+# Dictionary of supported sites
+site_urls = {
+    "youtube": "https://www.youtube.com",
+    "google": "https://www.google.com",
+    "facebook": "https://www.facebook.com",
+    "instagram": "https://www.instagram.com",
+    "manipal university": "https://student.onlinemanipal.com/s/",
+    "github": "https://github.com",
+    "chatgpt": "https://chat.openai.com",
+    "linkedin": "https://www.linkedin.com/",
+    "amazon": "https://www.amazon.com",
+    "netflix": "https://www.netflix.com",
+    "twitter": "https://twitter.com",
+    "reddit": "https://www.reddit.com",
+    "whatsapp": "https://web.whatsapp.com",
+    "gmail": "https://mail.google.com",
+    "drive": "https://drive.google.com",
+    "maps": "https://maps.google.com",
+    "spotify": "https://open.spotify.com",
+    "discord": "https://discord.com",
+    "zoom": "https://zoom.us",
+    "stackoverflow": "https://stackoverflow.com",
+    "wikipedia": "https://www.wikipedia.org",
+    "speedtest": "https://www.speedtest.net"
+}
+
 # ------------------ Routes ------------------
 
 @app.route('/')
@@ -317,32 +343,33 @@ def execute_command():
     if "how are you" in text or "kaise ho" in text:
         ai_response = "I am absolutely fine. What about you?"
     
+    # elif "ask with ai" in text:
+    #     query = text.replace("ask with ai", "").strip()
+    #     if query:
+    #         ai_response = f"Asking AI: {query}"
+    #         webbrowser.open(f"https://chat.openai.com/?q={query}")
+
+    # Ask with AI (ChatGPT)
     elif "ask with ai" in text:
         query = text.replace("ask with ai", "").strip()
         if query:
-            ai_response = f"Asking AI: {query}"
-            webbrowser.open(f"https://chat.openai.com/?q={query}")
-
-
-    elif "open" in text:
-        site_urls = {
-        "youtube": "https://www.youtube.com",
-        "google": "https://www.google.com",
-        "facebook": "https://www.facebook.com",
-        "instagram": "https://www.instagram.com",
-        "manipal university": "https://student.onlinemanipal.com/s/",
-        "github": "https://github.com",
-        "chatgpt": "https://chat.openai.com",
-        "linkedin": "https://www.linkedin.com/"
-    }
-
-        site_name = text.replace("open", "").strip()
-
-        if site_name in site_urls:
-            url = site_urls[site_name]
-            ai_response = f"Opening {site_name}..."
+            encoded_query = urllib.parse.quote(query)
+            url = f"https://chat.openai.com/?q={encoded_query}"
+            ai_response = f"Asking AI about: {query}"
             return jsonify({'ai_response': ai_response, 'url': url})
         else:
+            ai_response = "What would you like me to ask the AI?"
+            
+    # Open website command
+    elif "open" in text:
+        site_found = False
+        for site_name, site_url in site_urls.items():
+            if site_name in text:
+                ai_response = f"Opening {site_name}..."
+                return jsonify({'ai_response': ai_response, 'url': site_url})
+        
+        if not site_found:
+            site_name = text.replace("open", "").strip()
             search_url = f"https://www.google.com/search?q={site_name}"
             ai_response = f"I couldn't find a direct link for {site_name}, so I searched it on Google."
             return jsonify({'ai_response': ai_response, 'url': search_url})
@@ -358,15 +385,38 @@ def execute_command():
         current_date = datetime.now().strftime("%A, %d %B %Y")
         ai_response = f"Today is {current_date}."
 
-    elif "search on youtube" in text:
-        query = text.replace("search on youtube", "").strip()
-        if query:
-            ai_response = search_youtube(query)
+    # elif "search on youtube" in text:
+    #     query = text.replace("search on youtube", "").strip()
+    #     if query:
+    #         ai_response = search_youtube(query)
 
-    elif "search on google" in text:
-        query = text.replace("search on google", "").strip()
+    # elif "search on google" in text:
+    #     query = text.replace("search on google", "").strip()
+    #     if query:
+    #         ai_response = search_google(query)
+
+    # Search on Google
+    elif "search on google" in text or "google search" in text:
+        query = text.replace("search on google", "").replace("google search", "").strip()
         if query:
-            ai_response = search_google(query)
+            url = f"https://www.google.com/search?q={urllib.parse.quote(query)}"
+            ai_response = f"Searching Google for {query}"
+            return jsonify({'ai_response': ai_response, 'url': url})
+        else:
+            ai_response = "What would you like me to search on Google?"
+            return jsonify({'ai_response': ai_response})
+
+    # Search on YouTube
+    elif "search on youtube" in text or "youtube search" in text:
+        query = text.replace("search on youtube", "").replace("youtube search", "").strip()
+        if query:
+            url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
+            ai_response = f"Searching YouTube for {query}"
+            return jsonify({'ai_response': ai_response, 'url': url})
+        else:
+            ai_response = "What would you like me to search on YouTube?"
+            return jsonify({'ai_response': ai_response})
+
 
     elif 'weather' in text:
         city_match = re.search(r'weather(?: in)? (.+)', text)
@@ -432,11 +482,29 @@ def execute_command():
         ai_response = pyjokes.get_joke()
     
 
-    elif "play music on youtube" in text:
-        ai_response = play_music_on_youtube()
+    # elif "play music on youtube" in text:
+    #     ai_response = play_music_on_youtube()
 
-    elif "check internet speed" in text:
-        ai_response = check_internet_speed()
+    # Play music on YouTube
+    elif "play music on youtube" in text or "play song on youtube" in text:
+        query = text.replace("play music on youtube", "").replace("play song on youtube", "").strip()
+        if query:
+            url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
+            ai_response = f"Searching YouTube for {query}"
+            return jsonify({'ai_response': ai_response, 'url': url})
+        else:
+            ai_response = "What song would you like me to play on YouTube?"
+            return jsonify({'ai_response': ai_response})
+
+
+    # elif "check internet speed" in text:
+    #     ai_response = check_internet_speed()
+
+    # Check internet speed
+    elif "check internet speed" in text or "speed test" in text:
+        ai_response = "Opening Speedtest to check your internet speed."
+        return jsonify({'ai_response': ai_response, 'url': site_urls['speedtest']})
+
 
     elif "translate" in text:
         try:
@@ -490,27 +558,49 @@ def execute_command():
         ai_response = convert_currency(amount, from_currency, to_currency)
 
     
+    # elif "nearby" in text or "find" in text or "location" in text:
+    #     try:
+    #         # Handle phrases like "find hospital", "nearby petrol pump", etc.
+    #         query = ""
+    #         if "nearby" in text:
+    #             query = text.split("nearby")[-1].strip()
+    #         elif "find" in text:
+    #             query = text.split("find")[-1].strip()
+    #         elif "location" in text:
+    #             query = text.split("find")[-1].strip()
+
+    #         if query:
+    #             search_query = urllib.parse.quote(query + " near me")
+    #             maps_url = f"https://www.google.com/maps/search/{search_query}"
+    #             webbrowser.open(maps_url)
+    #             ai_response = f"Searching for {query} near you..."
+    #         else:
+    #             ai_response = "Please specify what you're looking for nearby."
+
+    #     except Exception as e:
+    #         ai_response = f"Sorry, I couldn't search maps: {str(e)}"
+
+    # Location/nearby places
     elif "nearby" in text or "find" in text or "location" in text:
         try:
-            # Handle phrases like "find hospital", "nearby petrol pump", etc.
             query = ""
             if "nearby" in text:
                 query = text.split("nearby")[-1].strip()
             elif "find" in text:
                 query = text.split("find")[-1].strip()
             elif "location" in text:
-                query = text.split("find")[-1].strip()
+                query = text.split("location")[-1].strip()
 
             if query:
-                search_query = urllib.parse.quote(query + " near me")
+                search_query = urllib.parse.quote(f"{query} near me")
                 maps_url = f"https://www.google.com/maps/search/{search_query}"
-                webbrowser.open(maps_url)
                 ai_response = f"Searching for {query} near you..."
+                return jsonify({'ai_response': ai_response, 'url': maps_url})
             else:
                 ai_response = "Please specify what you're looking for nearby."
-
         except Exception as e:
             ai_response = f"Sorry, I couldn't search maps: {str(e)}"
+            
 
     elif "synonyms of" in text:
         word = text.replace("synonyms of", "").strip()
