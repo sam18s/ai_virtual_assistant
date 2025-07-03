@@ -1022,18 +1022,42 @@
     }
 
     
-      function addToHistory(user, ai) {
-        history.push({ user, ai });
-        renderHistory();
-      }
+      // function addToHistory(user, ai) {
+      //   history.push({ user, ai });
+      //   renderHistory();
+      // }
 
-      function renderHistory() {
-        historyPanel.innerHTML = history.map(item => `
-          <div class="history-item">
-            <span class="history-user"><i class="fas fa-user"></i> You: ${item.user}</span>
-            <span class="history-ai">${item.ai}</span>
-          </div>
-        `).join('');
+      // function renderHistory() {
+      //   historyPanel.innerHTML = history.map(item => `
+      //     <div class="history-item">
+      //       <span class="history-user"><i class="fas fa-user"></i> You: ${item.user}</span>
+      //       <span class="history-ai">${item.ai}</span>
+      //     </div>
+      //   `).join('');
+      // }
+
+      function addToHistory(user, ai) {
+      history.unshift({ user, ai }); // Add to beginning to show newest first
+      if (history.length > 20) {
+        history.pop(); // Keep only last 20 items
+      }
+      renderHistory();
+      localStorage.setItem('assistantHistory', JSON.stringify(history));
+    }
+
+    function renderHistory() {
+      const savedHistory = localStorage.getItem('assistantHistory');
+      if (savedHistory) {
+        try {
+          history = JSON.parse(savedHistory);
+          if (!Array.isArray(history)) {
+            history = [];
+          }
+        } catch (e) {
+          history = [];
+        }
+      } else {
+        history = [];
       }
       
       historyPanel.innerHTML = history.map((item, index) => `
