@@ -931,32 +931,32 @@
       }
     });
 
-    // // AI Command Click Handlers
-    // window.handleCommand = function (command) {
-    //   processCommand(command, false);
-    // };
-
-
     // AI Command Click Handlers
-      window.handleCommand = function (command) {
-        wordsElement.innerText = `You: ${command}`;
-        fetch('/execute_command', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: command }),
-        })
-          .then(response => response.json())
-          .then(data => {
-            wordsElement.innerText += `\nAI: ${data.ai_response}`;
-            speak(data.ai_response);
-            addToHistory(command, data.ai_response);
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-      };
+    window.handleCommand = function (command) {
+      processCommand(command, false);
+    };
+
+
+    // // AI Command Click Handlers
+    //   window.handleCommand = function (command) {
+    //     wordsElement.innerText = `You: ${command}`;
+    //     fetch('/execute_command', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify({ text: command }),
+    //     })
+    //       .then(response => response.json())
+    //       .then(data => {
+    //         wordsElement.innerText += `\nAI: ${data.ai_response}`;
+    //         speak(data.ai_response);
+    //         addToHistory(command, data.ai_response);
+    //       })
+    //       .catch(error => {
+    //         console.error('Error:', error);
+    //       });
+    //   };
 
 
     // Mic Toggle Logic
