@@ -746,7 +746,7 @@
       recognition.interimResults = false;
       recognition.continuous = false;
 
-      const BACKEND_URL = "https://ai-backend-jybc.onrender.com";
+      // const BACKEND_URL = "https://ai-backend-jybc.onrender.com";
 
 
       // Speak function using Web Speech API
@@ -852,7 +852,7 @@
             const transcript = event.results[0][0].transcript;
             wordsElement.innerText = `${transcript}`;
 
-            fetch('https://ai-backend-jybc.onrender.com/execute_command', {
+            fetch('/execute_command', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
