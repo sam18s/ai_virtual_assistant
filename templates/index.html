@@ -825,35 +825,6 @@
       }
     }
 
-
-    // // Process commands (for both voice and click)
-    // async function processCommand(command, isVoiceCommand = false) {
-    //   wordsElement.innerText = `You: ${command}`;
-      
-    //   try {
-    //     const response = await fetch('/execute_command', {
-    //       method: 'POST',
-    //       headers: {'Content-Type': 'application/json'},
-    //       body: JSON.stringify({text: command})
-    //     });
-        
-    //     const data = await response.json();
-    //     wordsElement.innerText += `\nAI: ${data.ai_response}`;
-    //     addToHistory(command, data.ai_response);
-        
-    //     // Speak response for voice commands and clicked commands
-    //     speak(data.ai_response);
-        
-    //     if (data.url) {
-    //       currentWindow = window.open(data.url, '_blank');
-    //     }
-    //   } catch (error) {
-    //     console.error('Error:', error);
-    //     const errorMsg = "Sorry, I couldn't process your request.";
-    //     wordsElement.innerText += `\nAI: ${errorMsg}`;
-    //     speak(errorMsg);
-    //   }
-
     // Screenshot function that captures the current window
     function takeScreenshot() {
       // Use html2canvas on the current window's document
@@ -896,12 +867,6 @@
       profileDropdown.classList.toggle('show');
     });
 
-
-    // Click command handler (modified to include voice response)
-    window.handleCommand = function(command) {
-      processCommand(command, false); // false indicates it's a click command
-    };
-
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
       if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
@@ -931,33 +896,43 @@
       }
     });
 
-    // // AI Command Click Handlers
-    // window.handleCommand = function (command) {
-    //   processCommand(command, false);
-    // };
-
-
-    // AI Command Click Handlers
-      window.handleCommand = function (command) {
-        wordsElement.innerText = `You: ${command}`;
-        fetch('/execute_command', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: command }),
-        })
-          .then(response => response.json())
-          .then(data => {
-            wordsElement.innerText += `\nAI: ${data.ai_response}`;
-            speak(data.ai_response);
-            addToHistory(command, data.ai_response);
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-      };
-
+    // AI Command Click Handlers - Modified to work with open commands
+    window.handleCommand = function(command) {
+      // Check if it's an "open" command
+      if (command.toLowerCase().startsWith('open ')) {
+        const site = command.substring(5).trim().toLowerCase();
+        let url;
+        
+        // Map common sites to their URLs
+        switch(site) {
+          case 'google':
+            url = 'https://www.google.com';
+            break;
+          case 'youtube':
+            url = 'https://www.youtube.com';
+            break;
+          case 'facebook':
+            url = 'https://www.facebook.com';
+            break;
+          case 'twitter':
+            url = 'https://www.twitter.com';
+            break;
+          default:
+            // For other sites, try to construct a URL
+            url = `https://www.${site}.com`;
+        }
+        
+        // Open the URL in a new tab
+        currentWindow = window.open(url, '_blank');
+        const response = `Opening ${site}`;
+        wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+        addToHistory(command, response);
+        speak(response);
+      } else {
+        // Process other commands normally
+        processCommand(command, false);
+      }
+    };
 
     // Mic Toggle Logic
     micButton.addEventListener('click', async () => {
@@ -1030,7 +1005,16 @@
     function renderHistory() {
       const savedHistory = localStorage.getItem('assistantHistory');
       if (savedHistory) {
-        history = JSON.parse(savedHistory);
+        try {
+          history = JSON.parse(savedHistory);
+          if (!Array.isArray(history)) {
+            history = [];
+          }
+        } catch (e) {
+          history = [];
+        }
+      } else {
+        history = [];
       }
       
       historyPanel.innerHTML = history.map((item, index) => `
@@ -1057,6 +1041,11 @@
       toggleHistoryBtn.innerHTML = hidden
         ? '<i class="fas fa-history"></i> <span>Show History</span>'
         : '<i class="fas fa-times"></i> <span>Hide History</span>';
+      
+      // Ensure history is rendered when showing
+      if (!hidden) {
+        renderHistory();
+      }
     });
 
     // Initialize the app
@@ -1064,7 +1053,6 @@
     renderHistory();
   });
 </script>
-  
 </body>
 
 </html>
