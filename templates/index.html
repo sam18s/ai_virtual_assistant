@@ -786,44 +786,73 @@
       speak(introText);
     }
 
-    // Process command function (used by both voice and click commands)
+    // // Process command function (used by both voice and click commands)
+    // async function processCommand(command, isVoiceCommand = false) {
+    //   wordsElement.innerText = `You: ${command}`;
+      
+    //   try {
+    //     const response = await fetch('/execute_command', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //       body: JSON.stringify({ text: command }),
+    //     });
+        
+    //     if (!response.ok) {
+    //       throw new Error('Network response was not ok');
+    //     }
+        
+    //     const data = await response.json();
+    //     wordsElement.innerText += `\nAI: ${data.ai_response}`;
+    //     addToHistory(command, data.ai_response);
+        
+    //     if (isVoiceCommand) {
+    //       speak(data.ai_response);
+    //     }
+        
+    //     if (data.url) {
+    //       // Store the newly opened window reference for screenshots
+    //       currentWindow = window.open(data.url, '_blank');
+    //     }
+    //   } catch (error) {
+    //     console.error('Error:', error);
+    //     const errorMsg = "Sorry, I couldn't process your request. Please try again.";
+    //     wordsElement.innerText += `\nAI: ${errorMsg}`;
+    //     if (isVoiceCommand) {
+    //       speak(errorMsg);
+    //     }
+    //   }
+    // }
+
+
+    // Process commands (for both voice and click)
     async function processCommand(command, isVoiceCommand = false) {
       wordsElement.innerText = `You: ${command}`;
       
       try {
         const response = await fetch('/execute_command', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: command }),
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text: command})
         });
-        
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
         
         const data = await response.json();
         wordsElement.innerText += `\nAI: ${data.ai_response}`;
         addToHistory(command, data.ai_response);
         
-        if (isVoiceCommand) {
-          speak(data.ai_response);
-        }
+        // Speak response for voice commands and clicked commands
+        speak(data.ai_response);
         
         if (data.url) {
-          // Store the newly opened window reference for screenshots
           currentWindow = window.open(data.url, '_blank');
         }
       } catch (error) {
         console.error('Error:', error);
-        const errorMsg = "Sorry, I couldn't process your request. Please try again.";
+        const errorMsg = "Sorry, I couldn't process your request.";
         wordsElement.innerText += `\nAI: ${errorMsg}`;
-        if (isVoiceCommand) {
-          speak(errorMsg);
-        }
+        speak(errorMsg);
       }
-    }
 
     // Screenshot function that captures the current window
     function takeScreenshot() {
@@ -867,6 +896,12 @@
       profileDropdown.classList.toggle('show');
     });
 
+
+    // Click command handler (modified to include voice response)
+    window.handleCommand = function(command) {
+      processCommand(command, false); // false indicates it's a click command
+    };
+
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
       if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
@@ -896,10 +931,33 @@
       }
     });
 
+    // // AI Command Click Handlers
+    // window.handleCommand = function (command) {
+    //   processCommand(command, false);
+    // };
+
+
     // AI Command Click Handlers
-    window.handleCommand = function (command) {
-      processCommand(command, false);
-    };
+      window.handleCommand = function (command) {
+        wordsElement.innerText = `You: ${command}`;
+        fetch('/execute_command', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: command }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            wordsElement.innerText += `\nAI: ${data.ai_response}`;
+            speak(data.ai_response);
+            addToHistory(command, data.ai_response);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      };
+
 
     // Mic Toggle Logic
     micButton.addEventListener('click', async () => {
