@@ -867,6 +867,11 @@
       profileDropdown.classList.toggle('show');
     });
 
+    // Click command handler (modified to include voice response)
+    window.handleCommand = function(command) {
+      processCommand(command, false); // false indicates it's a click command
+    };
+
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
       if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
@@ -921,6 +926,29 @@
             // For other sites, try to construct a URL
             url = `https://www.${site}.com`;
         }
+
+
+        // AI Command Click Handlers
+      window.handleCommand = function (command) {
+        wordsElement.innerText = `You: ${command}`;
+        fetch('/execute_command', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: command }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            wordsElement.innerText += `\nAI: ${data.ai_response}`;
+            speak(data.ai_response);
+            addToHistory(command, data.ai_response);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      };
+
         
         // Open the URL in a new tab
         currentWindow = window.open(url, '_blank');
@@ -993,28 +1021,19 @@
       wordsElement.innerText = 'Click the mic to start listening.';
     }
 
-    function addToHistory(user, ai) {
-      history.unshift({ user, ai }); // Add to beginning to show newest first
-      if (history.length > 20) {
-        history.pop(); // Keep only last 20 items
+    
+      function addToHistory(user, ai) {
+        history.push({ user, ai });
+        renderHistory();
       }
-      renderHistory();
-      localStorage.setItem('assistantHistory', JSON.stringify(history));
-    }
 
-    function renderHistory() {
-      const savedHistory = localStorage.getItem('assistantHistory');
-      if (savedHistory) {
-        try {
-          history = JSON.parse(savedHistory);
-          if (!Array.isArray(history)) {
-            history = [];
-          }
-        } catch (e) {
-          history = [];
-        }
-      } else {
-        history = [];
+      function renderHistory() {
+        historyPanel.innerHTML = history.map(item => `
+          <div class="history-item">
+            <span class="history-user"><i class="fas fa-user"></i> You: ${item.user}</span>
+            <span class="history-ai">${item.ai}</span>
+          </div>
+        `).join('');
       }
       
       historyPanel.innerHTML = history.map((item, index) => `
