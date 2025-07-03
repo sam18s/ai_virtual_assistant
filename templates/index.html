@@ -729,375 +729,262 @@
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const micButton = document.getElementById('mic');
-    const container = document.getElementById('container');
-    const wordsElement = document.getElementById('words');
-    const toggleHistoryBtn = document.getElementById('toggleHistory');
-    const historyPanel = document.getElementById('historyPanel');
-    const hamburger = document.getElementById('hamburger');
-    const menuContent = document.getElementById('menuContent');
-    const toggleMenu = document.getElementById('toggleMenu');
-    const profileBtn = document.getElementById('profileBtn');
-    const profileDropdown = document.getElementById('profileDropdown');
+ document.addEventListener('DOMContentLoaded', function () {
+  const micButton = document.getElementById('mic');
+  const container = document.getElementById('container');
+  const wordsElement = document.getElementById('words');
+  const toggleHistoryBtn = document.getElementById('toggleHistory');
+  const historyPanel = document.getElementById('historyPanel');
+  const hamburger = document.getElementById('hamburger');
+  const menuContent = document.getElementById('menuContent');
+  const toggleMenu = document.getElementById('toggleMenu');
+  const profileBtn = document.getElementById('profileBtn');
+  const profileDropdown = document.getElementById('profileDropdown');
 
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    let isListening = false;
-    let history = [];
-    let currentWindow = window; // Track the current window for screenshots
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  let isListening = false;
+  let history = JSON.parse(localStorage.getItem('assistantHistory')) || [];
+  let currentWindow = window;
 
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.continuous = false;
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.continuous = false;
 
-    // Speak function using Web Speech API
-    function speak(text) {
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1;
-        utterance.pitch = 1;
-        utterance.volume = 1;
+  function speak(text) {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.volume = 1;
 
-        const voices = window.speechSynthesis.getVoices();
-        const femaleVoice = voices.find(voice => voice.name.includes('Female'));
-        if (femaleVoice) {
-          utterance.voice = femaleVoice;
-        }
-
-        window.speechSynthesis.speak(utterance);
-      } else {
-        console.log('Text-to-speech not supported in this browser');
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => voice.name.includes('Female'));
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
       }
-    }
 
-    // Initialize voices
-    function initializeVoices() {
-      return new Promise(resolve => {
-        if (window.speechSynthesis.getVoices().length > 0) {
-          resolve();
-        } else {
-          window.speechSynthesis.onvoiceschanged = resolve;
-        }
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  function initializeVoices() {
+    return new Promise(resolve => {
+      if (window.speechSynthesis.getVoices().length > 0) {
+        resolve();
+      } else {
+        window.speechSynthesis.onvoiceschanged = resolve;
+      }
+    });
+  }
+
+  async function speakIntroduction() {
+    await initializeVoices();
+    const introText = "Hello! I am Lucy AI, a highly intelligent virtual assistant designed to efficiently perform various tasks and provide seamless assistance. How may I help you?";
+    speak(introText);
+  }
+
+  async function processCommand(command, isVoiceCommand = false) {
+    wordsElement.innerText = `You: ${command}`;
+    try {
+      const response = await fetch('/execute_command', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: command }),
       });
-    }
 
-    // Speak introduction when page loads
-    async function speakIntroduction() {
-      await initializeVoices();
-      const introText = "Hello! I am Lucy AI, a highly intelligent virtual assistant designed to efficiently perform various tasks and provide seamless assistance. How may I help you?";
-      speak(introText);
+      const data = await response.json();
+      wordsElement.innerText += `\nAI: ${data.ai_response}`;
+      addToHistory(command, data.ai_response);
+      if (isVoiceCommand) speak(data.ai_response);
+      if (data.url) currentWindow = window.open(data.url, '_blank');
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMsg = "Sorry, I couldn't process your request. Please try again.";
+      wordsElement.innerText += `\nAI: ${errorMsg}`;
+      if (isVoiceCommand) speak(errorMsg);
     }
+  }
 
-    // Process command function (used by both voice and click commands)
-    async function processCommand(command, isVoiceCommand = false) {
-      wordsElement.innerText = `You: ${command}`;
-      
+  function takeScreenshot() {
+    const targetWindow = currentWindow || window;
+    if (targetWindow !== window) {
       try {
-        const response = await fetch('/execute_command', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: command }),
-        });
-        
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        
-        const data = await response.json();
-        wordsElement.innerText += `\nAI: ${data.ai_response}`;
-        addToHistory(command, data.ai_response);
-        
-        if (isVoiceCommand) {
-          speak(data.ai_response);
-        }
-        
-        if (data.url) {
-          // Store the newly opened window reference for screenshots
-          currentWindow = window.open(data.url, '_blank');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        const errorMsg = "Sorry, I couldn't process your request. Please try again.";
-        wordsElement.innerText += `\nAI: ${errorMsg}`;
-        if (isVoiceCommand) {
-          speak(errorMsg);
-        }
-      }
-    }
-
-    // Screenshot function that captures the current window
-    function takeScreenshot() {
-      // Use html2canvas on the current window's document
-      const targetWindow = currentWindow || window;
-      
-      // If we're capturing a different window, we need to inject html2canvas into it
-      if (targetWindow !== window) {
-        try {
-          const script = targetWindow.document.createElement('script');
-          script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
-          script.onload = function() {
-            targetWindow.html2canvas(targetWindow.document.body).then(function(canvas) {
-              const link = targetWindow.document.createElement("a");
-              link.download = `screenshot_${Date.now()}.png`;
-              link.href = canvas.toDataURL("image/png");
-              link.click();
-              speak("Screenshot captured successfully.");
-            });
-          };
-          targetWindow.document.body.appendChild(script);
-        } catch (e) {
-          console.error("Error capturing screenshot of external window:", e);
-          speak("Sorry, I couldn't capture a screenshot of that window.");
-        }
-      } else {
-        // Capture the current window
-        html2canvas(document.body).then(function(canvas) {
-          const link = document.createElement("a");
-          link.download = `screenshot_${Date.now()}.png`;
-          link.href = canvas.toDataURL("image/png");
-          link.click();
-          speak("Screenshot captured successfully.");
-        });
-      }
-    }
-
-    // Profile dropdown toggle
-    profileBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      profileDropdown.classList.toggle('show');
-    });
-
-    // Click command handler (modified to include voice response)
-    window.handleCommand = function(command) {
-      processCommand(command, false); // false indicates it's a click command
-    };
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
-        profileDropdown.classList.remove('show');
-      }
-    });
-
-    // Click to toggle menu
-    hamburger.addEventListener('click', () => {
-      const isVisible = menuContent.style.display === 'block';
-      menuContent.style.display = isVisible ? 'none' : 'block';
-      if (isVisible) {
-        menuContent.classList.remove('clicked');
-      } else {
-        menuContent.classList.add('clicked');
-      }
-    });
-
-    // Hover to show menu
-    toggleMenu.addEventListener('mouseenter', () => {
-      menuContent.style.display = 'block';
-    });
-
-    toggleMenu.addEventListener('mouseleave', () => {
-      if (!menuContent.classList.contains('clicked')) {
-        menuContent.style.display = 'none';
-      }
-    });
-
-    // AI Command Click Handlers - Modified to work with open commands
-    window.handleCommand = function(command) {
-      // Check if it's an "open" command
-      if (command.toLowerCase().startsWith('open ')) {
-        const site = command.substring(5).trim().toLowerCase();
-        let url;
-        
-        // Map common sites to their URLs
-        switch(site) {
-          case 'google':
-            url = 'https://www.google.com';
-            break;
-          case 'youtube':
-            url = 'https://www.youtube.com';
-            break;
-          case 'facebook':
-            url = 'https://www.facebook.com';
-            break;
-          case 'twitter':
-            url = 'https://www.twitter.com';
-            break;
-          default:
-            // For other sites, try to construct a URL
-            url = `https://www.${site}.com`;
-        }
-
-
-        // AI Command Click Handlers
-      window.handleCommand = function (command) {
-        wordsElement.innerText = `You: ${command}`;
-        fetch('/execute_command', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: command }),
-        })
-          .then(response => response.json())
-          .then(data => {
-            wordsElement.innerText += `\nAI: ${data.ai_response}`;
-            speak(data.ai_response);
-            addToHistory(command, data.ai_response);
-          })
-          .catch(error => {
-            console.error('Error:', error);
+        const script = targetWindow.document.createElement('script');
+        script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+        script.onload = function () {
+          targetWindow.html2canvas(targetWindow.document.body).then(canvas => {
+            const link = targetWindow.document.createElement("a");
+            link.download = `screenshot_${Date.now()}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            speak("Screenshot captured successfully.");
           });
-      };
-
-        
-        // Open the URL in a new tab
-        currentWindow = window.open(url, '_blank');
-        const response = `Opening ${site}`;
-        wordsElement.innerText = `You: ${command}\nAI: ${response}`;
-        addToHistory(command, response);
-        speak(response);
-      } else {
-        // Process other commands normally
-        processCommand(command, false);
+        };
+        targetWindow.document.body.appendChild(script);
+      } catch (e) {
+        console.error("Error capturing screenshot of external window:", e);
+        speak("Sorry, I couldn't capture a screenshot of that window.");
       }
-    };
-
-    // Mic Toggle Logic
-    micButton.addEventListener('click', async () => {
-      isListening = !isListening;
-      micButton.classList.toggle('active');
-
-      if (isListening) {
-        await initializeVoices();
-        container.style.display = 'block';
-        wordsElement.innerText = 'Listening...';
-        recognition.start();
-      } else {
-        stopRecognition();
-      }
-    });
-
-    // Voice recognition handlers
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript.trim();
-      
-      // Handle special commands
-      if (transcript.toLowerCase().includes("screenshot") || 
-          transcript.toLowerCase().includes("take screenshot") || 
-          transcript.toLowerCase().includes("capture screen")) {
-        takeScreenshot();
-        return;
-      }
-      
-      processCommand(transcript, true);
-    };
-
-    recognition.onerror = (event) => {
-      console.error('Error:', event.error);
-      let errorMessage = "Error recognizing speech";
-      if (event.error === 'no-speech') {
-        errorMessage = "No speech detected";
-      } else if (event.error === 'audio-capture') {
-        errorMessage = "No microphone found";
-      } else if (event.error === 'not-allowed') {
-        errorMessage = "Microphone access denied";
-      }
-      
-      wordsElement.innerText = errorMessage;
-      speak(errorMessage);
-      stopRecognition();
-    };
-
-    recognition.onend = () => {
-      if (isListening) {
-        recognition.start();
-      }
-    };
-
-    function stopRecognition() {
-      recognition.stop();
-      isListening = false;
-      micButton.classList.remove('active');
-      wordsElement.innerText = 'Click the mic to start listening.';
-    }
-
-    
-      // function addToHistory(user, ai) {
-      //   history.push({ user, ai });
-      //   renderHistory();
-      // }
-
-      // function renderHistory() {
-      //   historyPanel.innerHTML = history.map(item => `
-      //     <div class="history-item">
-      //       <span class="history-user"><i class="fas fa-user"></i> You: ${item.user}</span>
-      //       <span class="history-ai">${item.ai}</span>
-      //     </div>
-      //   `).join('');
-      // }
-
-      function addToHistory(user, ai) {
-      history.unshift({ user, ai }); // Add to beginning to show newest first
-      if (history.length > 20) {
-        history.pop(); // Keep only last 20 items
-      }
-      renderHistory();
-      localStorage.setItem('assistantHistory', JSON.stringify(history));
-    }
-
-    function renderHistory() {
-      const savedHistory = localStorage.getItem('assistantHistory');
-      if (savedHistory) {
-        try {
-          history = JSON.parse(savedHistory);
-          if (!Array.isArray(history)) {
-            history = [];
-          }
-        } catch (e) {
-          history = [];
-        }
-      } else {
-        history = [];
-      }
-      
-      historyPanel.innerHTML = history.map((item, index) => `
-        <div class="history-item">
-          <span class="history-user"><i class="fas fa-user"></i> ${item.user}</span>
-          <span class="history-ai"><i class="fas fa-robot"></i> ${item.ai}</span>
-          <button class="delete-history" data-index="${index}"><i class="fas fa-trash"></i></button>
-        </div>
-      `).join('');
-      
-      // Add event listeners to delete buttons
-      document.querySelectorAll('.delete-history').forEach(button => {
-        button.addEventListener('click', function() {
-          const index = parseInt(this.getAttribute('data-index'));
-          history.splice(index, 1);
-          localStorage.setItem('assistantHistory', JSON.stringify(history));
-          renderHistory();
-        });
+    } else {
+      html2canvas(document.body).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `screenshot_${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        speak("Screenshot captured successfully.");
       });
     }
+  }
 
-    toggleHistoryBtn.addEventListener('click', () => {
-      const hidden = historyPanel.classList.toggle('hidden');
-      toggleHistoryBtn.innerHTML = hidden
-        ? '<i class="fas fa-history"></i> <span>Show History</span>'
-        : '<i class="fas fa-times"></i> <span>Hide History</span>';
-      
-      // Ensure history is rendered when showing
-      if (!hidden) {
-        renderHistory();
-      }
-    });
-
-    // Initialize the app
-    speakIntroduction();
+  function addToHistory(user, ai) {
+    history.unshift({ user, ai });
+    if (history.length > 20) history.pop();
+    localStorage.setItem('assistantHistory', JSON.stringify(history));
     renderHistory();
+  }
+
+  function renderHistory() {
+    historyPanel.innerHTML = history.map((item, index) => `
+      <div class="history-item">
+        <span class="history-user"><i class="fas fa-user"></i> ${item.user}</span>
+        <span class="history-ai"><i class="fas fa-robot"></i> ${item.ai}</span>
+        <button class="delete-history" data-index="${index}"><i class="fas fa-trash"></i></button>
+      </div>
+    `).join('');
+
+    document.querySelectorAll('.delete-history').forEach(button => {
+      button.addEventListener('click', function () {
+        const index = parseInt(this.getAttribute('data-index'));
+        history.splice(index, 1);
+        localStorage.setItem('assistantHistory', JSON.stringify(history));
+        renderHistory();
+      });
+    });
+  }
+
+  // ✅ Main Working Click Command Handler
+  window.handleCommand = async function (command) {
+    const lowerCmd = command.toLowerCase();
+    if (lowerCmd.startsWith("open ")) {
+      const site = lowerCmd.substring(5).trim();
+      let url;
+
+      switch (site) {
+        case 'google':
+          url = 'https://www.google.com';
+          break;
+        case 'youtube':
+        case 'yt':
+          url = 'https://www.youtube.com';
+          break;
+        case 'facebook':
+          url = 'https://www.facebook.com';
+          break;
+        case 'twitter':
+          url = 'https://www.twitter.com';
+          break;
+        default:
+          url = `https://www.${site}.com`;
+      }
+
+      currentWindow = window.open(url, '_blank');
+      const response = `Opening ${site}`;
+      wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+      addToHistory(command, response);
+      speak(response);
+    } else {
+      processCommand(command, false);
+    }
+  };
+
+  micButton.addEventListener('click', async () => {
+    isListening = !isListening;
+    micButton.classList.toggle('active');
+
+    if (isListening) {
+      await initializeVoices();
+      container.style.display = 'block';
+      wordsElement.innerText = 'Listening...';
+      recognition.start();
+    } else {
+      stopRecognition();
+    }
   });
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript.trim();
+    if (transcript.toLowerCase().includes("screenshot")) {
+      takeScreenshot();
+    } else {
+      processCommand(transcript, true);
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error('Error:', event.error);
+    let msg = "Speech recognition error.";
+    if (event.error === 'no-speech') msg = "No speech detected.";
+    else if (event.error === 'audio-capture') msg = "No microphone found.";
+    else if (event.error === 'not-allowed') msg = "Microphone access denied.";
+    wordsElement.innerText = msg;
+    speak(msg);
+    stopRecognition();
+  };
+
+  recognition.onend = () => {
+    if (isListening) recognition.start();
+  };
+
+  function stopRecognition() {
+    recognition.stop();
+    isListening = false;
+    micButton.classList.remove('active');
+    wordsElement.innerText = 'Click the mic to start listening.';
+  }
+
+  toggleHistoryBtn.addEventListener('click', () => {
+    const hidden = historyPanel.classList.toggle('hidden');
+    toggleHistoryBtn.innerHTML = hidden
+      ? '<i class="fas fa-history"></i> <span>Show History</span>'
+      : '<i class="fas fa-times"></i> <span>Hide History</span>';
+    if (!hidden) renderHistory();
+  });
+
+  profileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle('show');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+      profileDropdown.classList.remove('show');
+    }
+  });
+
+  hamburger.addEventListener('click', () => {
+    const isVisible = menuContent.style.display === 'block';
+    menuContent.style.display = isVisible ? 'none' : 'block';
+    menuContent.classList.toggle('clicked', !isVisible);
+  });
+
+  toggleMenu.addEventListener('mouseenter', () => {
+    menuContent.style.display = 'block';
+  });
+
+  toggleMenu.addEventListener('mouseleave', () => {
+    if (!menuContent.classList.contains('clicked')) {
+      menuContent.style.display = 'none';
+    }
+  });
+
+  // 🔄 INIT
+  speakIntroduction();
+  renderHistory();
+});
 </script>
+
   
 </body>
 
