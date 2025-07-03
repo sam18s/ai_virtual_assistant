@@ -727,9 +727,8 @@
 
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
-
 <script>
- document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
   const micButton = document.getElementById('mic');
   const container = document.getElementById('container');
   const wordsElement = document.getElementById('words');
@@ -797,13 +796,13 @@
       const data = await response.json();
       wordsElement.innerText += `\nAI: ${data.ai_response}`;
       addToHistory(command, data.ai_response);
-      if (isVoiceCommand) speak(data.ai_response);
+      speak(data.ai_response);
       if (data.url) currentWindow = window.open(data.url, '_blank');
     } catch (error) {
       console.error('Error:', error);
       const errorMsg = "Sorry, I couldn't process your request. Please try again.";
       wordsElement.innerText += `\nAI: ${errorMsg}`;
-      if (isVoiceCommand) speak(errorMsg);
+      speak(errorMsg);
     }
   }
 
@@ -846,25 +845,15 @@
   }
 
   function renderHistory() {
-    historyPanel.innerHTML = history.map((item, index) => `
+    historyPanel.innerHTML = history.map(item => `
       <div class="history-item">
         <span class="history-user"><i class="fas fa-user"></i> ${item.user}</span>
         <span class="history-ai"><i class="fas fa-robot"></i> ${item.ai}</span>
-        <button class="delete-history" data-index="${index}"><i class="fas fa-trash"></i></button>
       </div>
     `).join('');
-
-    document.querySelectorAll('.delete-history').forEach(button => {
-      button.addEventListener('click', function () {
-        const index = parseInt(this.getAttribute('data-index'));
-        history.splice(index, 1);
-        localStorage.setItem('assistantHistory', JSON.stringify(history));
-        renderHistory();
-      });
-    });
   }
 
-  // ✅ Main Working Click Command Handler
+  // ✅ WORKING CLICK COMMAND HANDLER FOR ALL TYPES
   window.handleCommand = async function (command) {
     const lowerCmd = command.toLowerCase();
     if (lowerCmd.startsWith("open ")) {
@@ -895,7 +884,7 @@
       addToHistory(command, response);
       speak(response);
     } else {
-      processCommand(command, false);
+      processCommand(command, false); // ✅ Now this also adds to history and speaks
     }
   };
 
@@ -979,11 +968,12 @@
     }
   });
 
-  // 🔄 INIT
+  // INIT
   speakIntroduction();
   renderHistory();
 });
 </script>
+
 
   
 </body>
