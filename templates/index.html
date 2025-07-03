@@ -726,7 +726,6 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const micButton = document.getElementById('mic');
@@ -743,6 +742,7 @@
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     let isListening = false;
     let history = [];
+    let currentWindow = window; // Track the current window for screenshots
 
     recognition.lang = 'en-US';
     recognition.interimResults = false;
@@ -768,13 +768,7 @@
       }
     }
 
-    // Speak introduction when page loads
-    function speakIntroduction() {
-      const introText = "Hello! I am Lucy AI, a highly intelligent virtual assistant designed to efficiently perform various tasks and provide seamless assistance. How may I help you?";
-      speak(introText);
-    }
-
-    // Initialize speech synthesis voices
+    // Initialize voices
     function initializeVoices() {
       return new Promise(resolve => {
         if (window.speechSynthesis.getVoices().length > 0) {
@@ -785,7 +779,14 @@
       });
     }
 
-    // Process command and handle response
+    // Speak introduction when page loads
+    async function speakIntroduction() {
+      await initializeVoices();
+      const introText = "Hello! I am Lucy AI, a highly intelligent virtual assistant designed to efficiently perform various tasks and provide seamless assistance. How may I help you?";
+      speak(introText);
+    }
+
+    // Process command function (used by both voice and click commands)
     async function processCommand(command, isVoiceCommand = false) {
       wordsElement.innerText = `You: ${command}`;
       
@@ -798,8 +799,11 @@
           body: JSON.stringify({ text: command }),
         });
         
-        const data = await response.json();
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
         
+        const data = await response.json();
         wordsElement.innerText += `\nAI: ${data.ai_response}`;
         addToHistory(command, data.ai_response);
         
@@ -808,7 +812,8 @@
         }
         
         if (data.url) {
-          window.open(data.url, '_blank');
+          // Store the newly opened window reference for screenshots
+          currentWindow = window.open(data.url, '_blank');
         }
       } catch (error) {
         console.error('Error:', error);
@@ -820,22 +825,40 @@
       }
     }
 
-    // Screenshot using html2canvas
+    // Screenshot function that captures the current window
     function takeScreenshot() {
-      html2canvas(document.body).then(function (canvas) {
-        const link = document.createElement("a");
-        link.download = `screenshot_${Date.now()}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-        speak("Screenshot captured successfully.");
-      });
-    }
-
-    // Initialize the application
-    async function initializeApp() {
-      await initializeVoices();
-      speakIntroduction();
-      renderHistory();
+      // Use html2canvas on the current window's document
+      const targetWindow = currentWindow || window;
+      
+      // If we're capturing a different window, we need to inject html2canvas into it
+      if (targetWindow !== window) {
+        try {
+          const script = targetWindow.document.createElement('script');
+          script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+          script.onload = function() {
+            targetWindow.html2canvas(targetWindow.document.body).then(function(canvas) {
+              const link = targetWindow.document.createElement("a");
+              link.download = `screenshot_${Date.now()}.png`;
+              link.href = canvas.toDataURL("image/png");
+              link.click();
+              speak("Screenshot captured successfully.");
+            });
+          };
+          targetWindow.document.body.appendChild(script);
+        } catch (e) {
+          console.error("Error capturing screenshot of external window:", e);
+          speak("Sorry, I couldn't capture a screenshot of that window.");
+        }
+      } else {
+        // Capture the current window
+        html2canvas(document.body).then(function(canvas) {
+          const link = document.createElement("a");
+          link.download = `screenshot_${Date.now()}.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+          speak("Screenshot captured successfully.");
+        });
+      }
     }
 
     // Profile dropdown toggle
@@ -879,11 +902,12 @@
     };
 
     // Mic Toggle Logic
-    micButton.addEventListener('click', () => {
+    micButton.addEventListener('click', async () => {
       isListening = !isListening;
       micButton.classList.toggle('active');
 
       if (isListening) {
+        await initializeVoices();
         container.style.display = 'block';
         wordsElement.innerText = 'Listening...';
         recognition.start();
@@ -978,7 +1002,8 @@
     });
 
     // Initialize the app
-    initializeApp();
+    speakIntroduction();
+    renderHistory();
   });
 </script>
   
