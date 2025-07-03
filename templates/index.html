@@ -817,17 +817,6 @@
         }
       });
 
-      // 💡 Screenshot using html2canvas
-      function takeScreenshot() {
-        html2canvas(document.body).then(function (canvas) {
-          const link = document.createElement("a");
-          link.download = `screenshot_${Date.now()}.png`;
-          link.href = canvas.toDataURL("image/png");
-          link.click();
-        });
-      }
-
-
       // AI Command Click Handlers
       window.handleCommand = function (command) {
         wordsElement.innerText = `You: ${command}`;
@@ -862,13 +851,6 @@
           recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             wordsElement.innerText = `${transcript}`;
-
-            // 👇 Screenshot command handling
-            if (transcript.includes("screenshot") || transcript.includes("take screenshot")) {
-              takeScreenshot();
-              speak("Screenshot captured successfully.");
-              return;
-            }
 
             fetch('https://ai-backend-jybc.onrender.com/execute_command', {
               method: 'POST',
