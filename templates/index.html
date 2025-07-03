@@ -725,195 +725,247 @@
   <div id="response"></div>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const micButton = document.getElementById('mic');
-      const container = document.getElementById('container');
-      const wordsElement = document.getElementById('words');
-      const toggleHistoryBtn = document.getElementById('toggleHistory');
-      const historyPanel = document.getElementById('historyPanel');
-      const hamburger = document.getElementById('hamburger');
-      const menuContent = document.getElementById('menuContent');
-      const toggleMenu = document.getElementById('toggleMenu');
-      const profileBtn = document.getElementById('profileBtn');
-      const profileDropdown = document.getElementById('profileDropdown');
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const micButton = document.getElementById('mic');
+    const container = document.getElementById('container');
+    const wordsElement = document.getElementById('words');
+    const toggleHistoryBtn = document.getElementById('toggleHistory');
+    const historyPanel = document.getElementById('historyPanel');
+    const hamburger = document.getElementById('hamburger');
+    const menuContent = document.getElementById('menuContent');
+    const toggleMenu = document.getElementById('toggleMenu');
+    const profileBtn = document.getElementById('profileBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
 
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      let isListening = false;
-      let history = [];
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    let isListening = false;
+    let history = [];
 
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
-      recognition.continuous = false;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.continuous = false;
 
-      // const BACKEND_URL = "https://ai-backend-jybc.onrender.com";
+    const BACKEND_URL = "https://ai-backend-jybc.onrender.com";
 
+    // Speak function using Web Speech API
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        // Set voice properties
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        utterance.volume = 1;
 
-      // Speak function using Web Speech API
-      function speak(text) {
-        if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(text);
-          // Set voice properties
-          utterance.rate = 1;
-          utterance.pitch = 1;
-          utterance.volume = 1;
+        // Find a female voice if available
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoice = voices.find(voice => voice.name.includes('Female'));
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+        }
 
-          // Find a female voice if available
-          const voices = window.speechSynthesis.getVoices();
-          const femaleVoice = voices.find(voice => voice.name.includes('Female'));
-          if (femaleVoice) {
-            utterance.voice = femaleVoice;
+        window.speechSynthesis.speak(utterance);
+      } else {
+        console.log('Text-to-speech not supported in this browser');
+      }
+    }
+
+    // Speak introduction when page loads
+    function speakIntroduction() {
+      const introText = "Hello! I am Lucy AI, a highly intelligent virtual assistant designed to efficiently perform various tasks and provide seamless assistance. How may I help you?";
+      speak(introText);
+    }
+
+    // Call speakIntroduction when page loads
+    speakIntroduction();
+
+    // Profile dropdown toggle
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileDropdown.classList.toggle('show');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+        profileDropdown.classList.remove('show');
+      }
+    });
+
+    // Click to toggle menu
+    hamburger.addEventListener('click', () => {
+      const isVisible = menuContent.style.display === 'block';
+      menuContent.style.display = isVisible ? 'none' : 'block';
+      if (isVisible) {
+        menuContent.classList.remove('clicked');
+      } else {
+        menuContent.classList.add('clicked');
+      }
+    });
+
+    // Hover to show menu
+    toggleMenu.addEventListener('mouseenter', () => {
+      menuContent.style.display = 'block';
+    });
+
+    toggleMenu.addEventListener('mouseleave', () => {
+      if (!menuContent.classList.contains('clicked')) {
+        menuContent.style.display = 'none';
+      }
+    });
+
+    // Screenshot using html2canvas
+    function takeScreenshot() {
+      html2canvas(document.body).then(function (canvas) {
+        const link = document.createElement("a");
+        link.download = `screenshot_${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        speak("Screenshot captured successfully.");
+      });
+    }
+
+    // AI Command Click Handlers
+    window.handleCommand = function (command) {
+      wordsElement.innerText = `You: ${command}`;
+      fetch('/execute_command', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: command }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          wordsElement.innerText += `\nAI: ${data.ai_response}`;
+          speak(data.ai_response);
+          addToHistory(command, data.ai_response);
+          
+          // If there's a URL in the response, open it
+          if (data.url) {
+            window.open(data.url, '_blank');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    };
+
+    // Mic Toggle Logic
+    micButton.addEventListener('click', () => {
+      isListening = !isListening;
+      micButton.classList.toggle('active');
+
+      if (isListening) {
+        container.style.display = 'block';
+        wordsElement.innerText = 'Listening...';
+        recognition.start();
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          wordsElement.innerText = `You: ${transcript}`;
+
+          // Screenshot command handling
+          if (transcript.toLowerCase().includes("screenshot") || 
+              transcript.toLowerCase().includes("take screenshot") || 
+              transcript.toLowerCase().includes("capture screen")) {
+            takeScreenshot();
+            return;
           }
 
-          window.speechSynthesis.speak(utterance);
-        } else {
-          console.log('Text-to-speech not supported in this browser');
-        }
-      }
-
-      // Speak introduction when page loads
-      function speakIntroduction() {
-        const introText = "Hello! I am Lucy AI, a highly intelligent virtual assistant designed to efficiently perform various tasks and provide seamless assistance. How may I help you?";
-        speak(introText);
-      }
-
-      // Call speakIntroduction when page loads
-      speakIntroduction();
-
-
-      // Profile dropdown toggle
-      profileBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        profileDropdown.classList.toggle('show');
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
-          profileDropdown.classList.remove('show');
-        }
-      });
-
-      // Click to toggle menu
-      hamburger.addEventListener('click', () => {
-        const isVisible = menuContent.style.display === 'block';
-        menuContent.style.display = isVisible ? 'none' : 'block';
-        if (isVisible) {
-          menuContent.classList.remove('clicked');
-        } else {
-          menuContent.classList.add('clicked');
-        }
-      });
-
-
-      // Hover to show menu
-      toggleMenu.addEventListener('mouseenter', () => {
-        menuContent.style.display = 'block';
-      });
-
-      toggleMenu.addEventListener('mouseleave', () => {
-        if (!menuContent.classList.contains('clicked')) {
-          menuContent.style.display = 'none';
-        }
-      });
-
-      // AI Command Click Handlers
-      window.handleCommand = function (command) {
-        wordsElement.innerText = `You: ${command}`;
-        fetch('/execute_command', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: command }),
-        })
-          .then(response => response.json())
-          .then(data => {
-            wordsElement.innerText += `\nAI: ${data.ai_response}`;
-            speak(data.ai_response);
-            addToHistory(command, data.ai_response);
+          fetch(BACKEND_URL + '/execute_command', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: transcript.trim() }),
           })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-      };
-
-      // Mic Toggle Logic
-      micButton.addEventListener('click', () => {
-        isListening = !isListening;
-        micButton.classList.toggle('active');
-
-        if (isListening) {
-          container.style.display = 'block';
-          wordsElement.innerText = 'Listening...';
-          recognition.start();
-
-          recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            wordsElement.innerText = `${transcript}`;
-
-            fetch('/execute_command', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ text: transcript.trim() }),
+            .then(response => response.json())
+            .then(data => {
+              wordsElement.innerText += `\nAI: ${data.ai_response}`;
+              speak(data.ai_response);
+              addToHistory(transcript, data.ai_response);
+              
+              // If there's a URL in the response, open it
+              if (data.url) {
+                window.open(data.url, '_blank');
+              }
             })
-              .then(response => response.json())
-              .then(data => {
-                wordsElement.innerText += `\n${data.ai_response}`;
-                speak(data.ai_response);
-                addToHistory(transcript, data.ai_response);
-              })
-              .catch(error => {
-                console.error('Error:', error);
-              });
-          };
+            .catch(error => {
+              console.error('Error:', error);
+            });
+        };
 
-          recognition.onerror = (event) => {
-            console.error('Error:', event.error);
-            stopRecognition();
-          };
-
-          recognition.onend = () => {
-            if (isListening) recognition.start();
-          };
-
-        } else {
+        recognition.onerror = (event) => {
+          console.error('Error:', event.error);
+          wordsElement.innerText = `Error: ${event.error}`;
           stopRecognition();
-        }
-      });
+        };
 
-      function stopRecognition() {
-        recognition.stop();
-        isListening = false;
-        micButton.classList.remove('active');
-        wordsElement.innerText = 'Click the mic to start listening.';
+        recognition.onend = () => {
+          if (isListening) {
+            recognition.start();
+          }
+        };
+
+      } else {
+        stopRecognition();
       }
-
-      function addToHistory(user, ai) {
-        history.push({ user, ai });
-        renderHistory();
-      }
-
-      function renderHistory() {
-        historyPanel.innerHTML = history.map(item => `
-          <div class="history-item">
-            <span class="history-user"><i class="fas fa-user"></i> You: ${item.user}</span>
-            <span class="history-ai">${item.ai}</span>
-          </div>
-        `).join('');
-      }
-
-      toggleHistoryBtn.addEventListener('click', () => {
-        const hidden = historyPanel.classList.toggle('hidden');
-        toggleHistoryBtn.innerHTML = hidden
-          ? '<i class="fas fa-history"></i> <span>Show History</span>'
-          : '<i class="fas fa-times"></i> <span>Hide History</span>';
-      });
     });
-  </script>
 
+    function stopRecognition() {
+      recognition.stop();
+      isListening = false;
+      micButton.classList.remove('active');
+      wordsElement.innerText = 'Click the mic to start listening.';
+    }
+
+    function addToHistory(user, ai) {
+      history.push({ user, ai });
+      renderHistory();
+      
+      // Save to localStorage
+      localStorage.setItem('assistantHistory', JSON.stringify(history));
+    }
+
+    function renderHistory() {
+      // Load from localStorage
+      const savedHistory = localStorage.getItem('assistantHistory');
+      if (savedHistory) {
+        history = JSON.parse(savedHistory);
+      }
+      
+      historyPanel.innerHTML = history.map((item, index) => `
+        <div class="history-item">
+          <span class="history-user"><i class="fas fa-user"></i> You: ${item.user}</span>
+          <span class="history-ai"><i class="fas fa-robot"></i> ${item.ai}</span>
+          <button class="delete-history" data-index="${index}"><i class="fas fa-trash"></i></button>
+        </div>
+      `).join('');
+      
+      // Add event listeners to delete buttons
+      document.querySelectorAll('.delete-history').forEach(button => {
+        button.addEventListener('click', function() {
+          const index = parseInt(this.getAttribute('data-index'));
+          history.splice(index, 1);
+          renderHistory();
+        });
+      });
+    }
+
+    toggleHistoryBtn.addEventListener('click', () => {
+      const hidden = historyPanel.classList.toggle('hidden');
+      toggleHistoryBtn.innerHTML = hidden
+        ? '<i class="fas fa-history"></i> <span>Show History</span>'
+        : '<i class="fas fa-times"></i> <span>Hide History</span>';
+    });
+
+    // Initial render of history
+    renderHistory();
+  });
+</script>
+  
 </body>
 
 </html>
