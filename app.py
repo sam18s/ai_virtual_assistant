@@ -485,16 +485,16 @@ def execute_command():
     # elif "play music on youtube" in text:
     #     ai_response = play_music_on_youtube()
 
-    # Play music on YouTube
-    elif "play music on youtube" in text or "play song on youtube" in text:
-        query = text.replace("play music on youtube", "").replace("play song on youtube", "").strip()
-        if query:
-            url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
-            ai_response = f"Searching YouTube for {query}"
-            return jsonify({'ai_response': ai_response, 'url': url})
-        else:
-            ai_response = "What song would you like me to play on YouTube?"
-            return jsonify({'ai_response': ai_response})
+    # # Play music on YouTube
+    # elif "play music on youtube" in text or "play song on youtube" in text:
+    #     query = text.replace("play music on youtube", "").replace("play song on youtube", "").strip()
+    #     if query:
+    #         url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
+    #         ai_response = f"Searching YouTube for {query}"
+    #         return jsonify({'ai_response': ai_response, 'url': url})
+    #     else:
+    #         ai_response = "What song would you like me to play on YouTube?"
+    #         return jsonify({'ai_response': ai_response})
 
 
     # elif "check internet speed" in text:
@@ -506,30 +506,30 @@ def execute_command():
         return jsonify({'ai_response': ai_response, 'url': site_urls['speedtest']})
 
 
-    elif "translate" in text:
-        try:
-            # Sample input: "translate how are you to hindi"
-            parts = text.split("to")
-            if len(parts) == 2:
-                sentence = parts[0].replace("translate", "").strip()
-                target_lang = parts[1].strip().lower()
+    # elif "translate" in text:
+    #     try:
+    #         # Sample input: "translate how are you to hindi"
+    #         parts = text.split("to")
+    #         if len(parts) == 2:
+    #             sentence = parts[0].replace("translate", "").strip()
+    #             target_lang = parts[1].strip().lower()
 
-                lang_codes = {
-                    "hindi": "hi", "english": "en", "marathi": "mr",
-                    "french": "fr", "spanish": "es", "german": "de",
-                    "telugu": "te", "tamil": "ta", "gujarati": "gu",
-                    "japanese": "ja", "chinese": "zh-cn"
-                }
+    #             lang_codes = {
+    #                 "hindi": "hi", "english": "en", "marathi": "mr",
+    #                 "french": "fr", "spanish": "es", "german": "de",
+    #                 "telugu": "te", "tamil": "ta", "gujarati": "gu",
+    #                 "japanese": "ja", "chinese": "zh-cn"
+    #             }
 
-                if target_lang in lang_codes:
-                    translated = translator.translate(sentence, dest=lang_codes[target_lang])
-                    ai_response = f"'{sentence}' in {target_lang.capitalize()} is: '{translated.text}'"
-                else:
-                    ai_response = f"Sorry, I don't support the language '{target_lang}' yet."
-            else:
-                ai_response = "Please say something like: translate how are you to Hindi."
-        except Exception as e:
-            ai_response = f"Translation error: {str(e)}"
+    #             if target_lang in lang_codes:
+    #                 translated = translator.translate(sentence, dest=lang_codes[target_lang])
+    #                 ai_response = f"'{sentence}' in {target_lang.capitalize()} is: '{translated.text}'"
+    #             else:
+    #                 ai_response = f"Sorry, I don't support the language '{target_lang}' yet."
+    #         else:
+    #             ai_response = "Please say something like: translate how are you to Hindi."
+    #     except Exception as e:
+    #         ai_response = f"Translation error: {str(e)}"
 
 
     elif "set alarm" in text:
@@ -610,10 +610,10 @@ def execute_command():
         word = text.replace("antonyms of", "").strip()
         ai_response = get_word_antonyms(word)
 
-    elif "search" in text or "who is" in text or "what is" in text:
-        query = text.replace("search", "").replace("who is", "").replace("what is", "").strip()
-        ai_response = f"Searching Google for {query}"
-        webbrowser.open(f"https://www.google.com/search?q={query}")
+    # elif "search" in text or "who is" in text or "what is" in text:
+    #     query = text.replace("search", "").replace("who is", "").replace("what is", "").strip()
+    #     ai_response = f"Searching Google for {query}"
+    #     webbrowser.open(f"https://www.google.com/search?q={query}")
 
     print(f"AI Response: {ai_response}")
     return jsonify({"user_input": text, "ai_response": ai_response}), 200
