@@ -417,16 +417,6 @@ def execute_command():
             ai_response = "What would you like me to search on YouTube?"
             return jsonify({'ai_response': ai_response})
 
-    elif "search" in text or "who is" in text or "what is" in text:
-        query = text.replace("search on google", "").replace("google search", "").strip()
-        if query:
-            url = f"https://www.google.com/search?q={urllib.parse.quote(query)}"
-            ai_response = f"Searching Google for {query}"
-            return jsonify({'ai_response': ai_response, 'url': url})
-        else:
-            ai_response = "What would you like me to search on Google?"
-            return jsonify({'ai_response': ai_response})
-
     elif 'weather' in text:
         city_match = re.search(r'weather(?: in)? (.+)', text)
         if city_match:
@@ -625,6 +615,16 @@ def execute_command():
     elif "antonyms of" in text:
         word = text.replace("antonyms of", "").strip()
         ai_response = get_word_antonyms(word)
+
+    elif "search" in text or "who is" in text or "what is" in text:
+        query = text.replace("search on google", "").replace("google search", "").strip()
+        if query:
+            url = f"https://www.google.com/search?q={urllib.parse.quote(query)}"
+            ai_response = f"Searching Google for {query}"
+            return jsonify({'ai_response': ai_response, 'url': url})
+        else:
+            ai_response = "What would you like me to search on Google?"
+            return jsonify({'ai_response': ai_response})
 
     # elif "search" in text or "who is" in text or "what is" in text:
     #     query = text.replace("search", "").replace("who is", "").replace("what is", "").strip()
