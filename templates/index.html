@@ -882,15 +882,15 @@ document.addEventListener('DOMContentLoaded', function () {
     addToHistory(command, response);
     speak(response);
 
-  // ✅ PLAY MUSIC ON YOUTUBE
-  } else if (lowerCmd.includes("play music on youtube")) {
-    const query = lowerCmd.replace("play music on youtube", "").trim();
-    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query || "music")}`;
-    currentWindow = window.open(url, '_blank');
-    const response = `Searching YouTube for ${query || "music"}`;
-    wordsElement.innerText = `You: ${command}\nAI: ${response}`;
-    addToHistory(command, response);
-    speak(response);
+  // // ✅ PLAY MUSIC ON YOUTUBE
+  // } else if (lowerCmd.includes("play music on youtube")) {
+  //   const query = lowerCmd.replace("play music on youtube", "").trim();
+  //   const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query || "music")}`;
+  //   currentWindow = window.open(url, '_blank');
+  //   const response = `Searching YouTube for ${query || "music"}`;
+  //   wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+  //   addToHistory(command, response);
+  //   speak(response);
 
   // ✅ TRANSLATE
   } else if (lowerCmd.startsWith("translate")) {
@@ -928,15 +928,15 @@ document.addEventListener('DOMContentLoaded', function () {
       speak(response);
     }
 
-  // ✅ SEARCH / WHO IS / WHAT IS
-  } else if (lowerCmd.startsWith("search") || lowerCmd.startsWith("who is") || lowerCmd.startsWith("what is")) {
-    const query = lowerCmd.replace("search", "").replace("who is", "").replace("what is", "").trim();
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    currentWindow = window.open(url, '_blank');
-    const response = `Searching Google for ${query}`;
-    wordsElement.innerText = `You: ${command}\nAI: ${response}`;
-    addToHistory(command, response);
-    speak(response);
+  // // ✅ SEARCH / WHO IS / WHAT IS
+  // } else if (lowerCmd.startsWith("search") || lowerCmd.startsWith("who is") || lowerCmd.startsWith("what is")) {
+  //   const query = lowerCmd.replace("search", "").replace("who is", "").replace("what is", "").trim();
+  //   const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+  //   currentWindow = window.open(url, '_blank');
+  //   const response = `Searching Google for ${query}`;
+  //   wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+  //   addToHistory(command, response);
+  //   speak(response);
 
   // ✅ FALLBACK
   } else {
