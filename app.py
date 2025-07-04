@@ -417,6 +417,15 @@ def execute_command():
             ai_response = "What would you like me to search on YouTube?"
             return jsonify({'ai_response': ai_response})
 
+    elif "search" in text or "who is" in text or "what is" in text:
+        query = text.replace("search on google", "").replace("google search", "").strip()
+        if query:
+            url = f"https://www.google.com/search?q={urllib.parse.quote(query)}"
+            ai_response = f"Searching Google for {query}"
+            return jsonify({'ai_response': ai_response, 'url': url})
+        else:
+            ai_response = "What would you like me to search on Google?"
+            return jsonify({'ai_response': ai_response})
 
     elif 'weather' in text:
         city_match = re.search(r'weather(?: in)? (.+)', text)
@@ -497,6 +506,13 @@ def execute_command():
     #         return jsonify({'ai_response': ai_response})
 
 
+    elif "play music on youtube" in text:
+        query = text.replace("play music on youtube", "").strip()
+        search_query = query if query else "music"
+        url = f"https://www.youtube.com/results?search_query={search_query.replace(' ', '+')}"
+        webbrowser.open(url)
+        ai_response = f"Searching YouTube for {search_query}."
+        
     # elif "check internet speed" in text:
     #     ai_response = check_internet_speed()
 
