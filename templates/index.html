@@ -855,38 +855,99 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ✅ WORKING CLICK COMMAND HANDLER FOR ALL TYPES
   window.handleCommand = async function (command) {
-    const lowerCmd = command.toLowerCase();
-    if (lowerCmd.startsWith("open ")) {
-      const site = lowerCmd.substring(5).trim();
-      let url;
+  const lowerCmd = command.toLowerCase();
+  
+  // ✅ OPEN SITE
+  if (lowerCmd.startsWith("open ")) {
+    const site = lowerCmd.substring(5).trim();
+    let url;
 
-      switch (site) {
-        case 'google':
-          url = 'https://www.google.com';
-          break;
-        case 'youtube':
-        case 'yt':
-          url = 'https://www.youtube.com';
-          break;
-        case 'facebook':
-          url = 'https://www.facebook.com';
-          break;
-        case 'twitter':
-          url = 'https://www.twitter.com';
-          break;
-        default:
-          url = `https://www.${site}.com`;
+    switch (site) {
+      case 'google':
+        url = 'https://www.google.com';
+        break;
+      case 'youtube':
+      case 'yt':
+        url = 'https://www.youtube.com';
+        break;
+      case 'facebook':
+        url = 'https://www.facebook.com';
+        break;
+      case 'twitter':
+        url = 'https://www.twitter.com';
+        break;
+      default:
+        url = `https://www.${site}.com`;
+    }
+
+    currentWindow = window.open(url, '_blank');
+    const response = `Opening ${site}`;
+    wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+    addToHistory(command, response);
+    speak(response);
+
+  // ✅ PLAY MUSIC ON YOUTUBE
+  } else if (lowerCmd.includes("play music on youtube")) {
+    const query = lowerCmd.replace("play music on youtube", "").trim();
+    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query || "music")}`;
+    currentWindow = window.open(url, '_blank');
+    const response = `Searching YouTube for ${query || "music"}`;
+    wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+    addToHistory(command, response);
+    speak(response);
+
+  // ✅ TRANSLATE
+  } else if (lowerCmd.startsWith("translate")) {
+    const parts = lowerCmd.split("to");
+    if (parts.length === 2) {
+      const sentence = parts[0].replace("translate", "").trim();
+      const target = parts[1].trim().toLowerCase();
+
+      const langCodes = {
+        "hindi": "hi", "english": "en", "marathi": "mr",
+        "french": "fr", "spanish": "es", "german": "de",
+        "telugu": "te", "tamil": "ta", "gujarati": "gu",
+        "japanese": "ja", "chinese": "zh-cn"
+      };
+
+      if (langCodes[target]) {
+        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=en|${langCodes[target]}`);
+        const json = await res.json();
+        const translated = json.responseData.translatedText;
+
+        const response = `'${sentence}' in ${target} is: '${translated}'`;
+        wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+        addToHistory(command, response);
+        speak(response);
+      } else {
+        const response = `Sorry, I don't support the language '${target}' yet.`;
+        wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+        addToHistory(command, response);
+        speak(response);
       }
-
-      currentWindow = window.open(url, '_blank');
-      const response = `Opening ${site}`;
+    } else {
+      const response = "Please say something like: translate how are you to Hindi.";
       wordsElement.innerText = `You: ${command}\nAI: ${response}`;
       addToHistory(command, response);
       speak(response);
-    } else {
-      processCommand(command, false); // ✅ Now this also adds to history and speaks
     }
-  };
+
+  // ✅ SEARCH / WHO IS / WHAT IS
+  } else if (lowerCmd.startsWith("search") || lowerCmd.startsWith("who is") || lowerCmd.startsWith("what is")) {
+    const query = lowerCmd.replace("search", "").replace("who is", "").replace("what is", "").trim();
+    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    currentWindow = window.open(url, '_blank');
+    const response = `Searching Google for ${query}`;
+    wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+    addToHistory(command, response);
+    speak(response);
+
+  // ✅ FALLBACK
+  } else {
+    processCommand(command, false);
+  }
+};
+
 
   micButton.addEventListener('click', async () => {
     isListening = !isListening;
