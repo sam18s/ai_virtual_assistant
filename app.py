@@ -396,7 +396,7 @@ def execute_command():
         else:
             ai_response = "Please specify a city for the weather details."
     
-    elif "who invented you" in text:
+    elif "who invented you" in text or "who made you" in text:
         ai_response = "I was created by Samiksha"
 
     elif "what is your name" in text:
@@ -431,6 +431,21 @@ def execute_command():
 
     elif "who are you" in text:
         ai_response = "I’m your personal AI assistant created by Samiksha!"
+
+    elif "i am sad" in text:
+        ai_response = "I'm here for you. Everything will be alright 🌈"
+
+    elif "i am happy" in text:
+        ai_response = "Yay! That’s great to hear! 😊"
+
+    elif "sing a song" in text:
+        ai_response = "La la la 🎶 I would, but I might crash your speakers!"
+
+    elif "tell me something" in text:
+        ai_response = "Did you know? Honey never spoils. Archaeologists found 3,000-year-old honey in Egypt that’s still edible!"
+
+    elif "what can you do" in text:
+        ai_response = "I can help you search, speech, pdf convert, open sites, take notes, and more!"
 
     elif 'news' in text:
         topic = text.replace('news about', '').strip()
