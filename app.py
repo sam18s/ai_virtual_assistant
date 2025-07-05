@@ -501,12 +501,12 @@ def execute_command():
     #         return jsonify({'ai_response': ai_response})
 
 
-    elif "play music on youtube" in text:
-        query = text.replace("play music on youtube", "").strip()
-        search_query = query if query else "music"
-        url = f"https://www.youtube.com/results?search_query={search_query.replace(' ', '+')}"
-        webbrowser.open(url)
-        ai_response = f"Searching YouTube for {search_query}."
+    # elif "play music on youtube" in text:
+    #     query = text.replace("play music on youtube", "").strip()
+    #     search_query = query if query else "music"
+    #     url = f"https://www.youtube.com/results?search_query={search_query.replace(' ', '+')}"
+    #     webbrowser.open(url)
+    #     ai_response = f"Searching YouTube for {search_query}."
         
     # elif "check internet speed" in text:
     #     ai_response = check_internet_speed()
