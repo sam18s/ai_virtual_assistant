@@ -1022,11 +1022,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
   
-  // INIT
-  speakIntroduction();
   renderHistory();
+
+  window.addEventListener('load', async () => {
+    await initializeVoices();
+    speakIntroduction();
+  });
 });
-  
 </script>
 
 
