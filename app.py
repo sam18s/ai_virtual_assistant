@@ -436,6 +436,9 @@ def execute_command():
     elif "what is your name" in text:
         ai_response = "my name is lucy."
 
+    elif "tell me about yourself" in text:
+        ai_response = "Hello! I am Lucy AI, a highly intelligent virtual assistant designed to efficiently perform various tasks and provide seamless assistance. How may I help you?"
+
     elif "thank you" in text or "thanks" in text:
         ai_response = "You're welcome!"
 
