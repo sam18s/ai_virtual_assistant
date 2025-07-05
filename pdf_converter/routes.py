@@ -12,11 +12,6 @@ pdf_bp = Blueprint('pdf', __name__,
                    static_folder='static',
                    static_url_path='/pdf/static')
 
-# app = Flask(__name__)
-# app.secret_key = 'supersecretkey'
-# # app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
-# app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg'}
 
@@ -65,8 +60,6 @@ def images_to_pdf(files):
             os.remove(tf)
 
     return pdf_bytes
-
-
 
 @pdf_bp.route('/', methods=['GET', 'POST'])
 def pdf_home():
