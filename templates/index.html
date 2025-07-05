@@ -884,20 +884,20 @@ document.addEventListener('DOMContentLoaded', function () {
     addToHistory(command, response);
     speak(response);
 
-   // ✅ PLAY MUSIC ON YOUTUBE
-  } else if (lowerCmd.includes("play music on youtube")) {
-  const query = lowerCmd.replace("play music on youtube", "").trim();
-  const searchQuery = encodeURIComponent(query || "music");
-  const url = `https://www.youtube.com/results?search_query=${searchQuery}`;
+  //  // ✅ PLAY MUSIC ON YOUTUBE
+  // } else if (lowerCmd.includes("play music on youtube")) {
+  // const query = lowerCmd.replace("play music on youtube", "").trim();
+  // const searchQuery = encodeURIComponent(query || "music");
+  // const url = `https://www.youtube.com/results?search_query=${searchQuery}`;
   
-  // ✅ Open in same tab to avoid popup blocking
-  window.location.href = url;
+  // // ✅ Open in same tab to avoid popup blocking
+  // window.location.href = url;
 
-  const response = `Searching YouTube for ${query || "music"}`;
-  wordsElement.innerText = `You: ${command}\nAI: ${response}`;
-  addToHistory(command, response);
-  speak(response);
-  }
+  // const response = `Searching YouTube for ${query || "music"}`;
+  // wordsElement.innerText = `You: ${command}\nAI: ${response}`;
+  // addToHistory(command, response);
+  // speak(response);
+  // }
       
   // ✅ TRANSLATE
   } else if (lowerCmd.startsWith("translate")) {
