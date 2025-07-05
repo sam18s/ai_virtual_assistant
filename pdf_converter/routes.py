@@ -19,7 +19,7 @@ def text_to_pdf(text):
     pdf = FPDF()
     pdf.add_page()
     
-    font_path = os.path.join('static', 'fonts', 'DejaVuSans.ttf')
+    font_path = os.path.join(os.path.dirname(__file__), 'static', 'fonts', 'DejaVuSans.ttf')
     pdf.add_font('DejaVu', '', font_path, uni=True)
     pdf.set_font('DejaVu', size=12)
 
@@ -80,6 +80,3 @@ def pdf_home():
             else:
                 flash("No valid images uploaded.", "error")
     return render_template('pdf/index.html')
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
