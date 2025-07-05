@@ -1,5 +1,5 @@
 body {
-    overflow: hidden;   
+    overflow: auto;   
     background: #3b0e68;
     background: radial-gradient(circle, #3b0e68 0%, #1a084e 100%);  
 }
@@ -248,4 +248,127 @@ h1 {
 
 #closeAudio:hover {
     color: #ff0000;
+}
+
+@media (max-width: 1024px) {
+    h1 {
+        font-size: 2rem;
+        top: 10px;
+    }
+
+    #transcript {
+        font-size: 1.6rem;
+        margin: 80px 20px;
+    }
+
+    .mic-icon {
+        transform: translate(-50%, -50%) scale(4);
+    }
+
+    .mic::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .mic::after {
+        width: 200px;
+        height: 200px;
+    }
+
+    .mic-shadow {
+        width: 300px;
+        height: 300px;
+    }
+
+    #audioPlayback {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    #transcript {
+        font-size: 1.2rem;
+        margin: 60px 20px;
+    }
+
+    .mic-icon {
+        transform: translate(-50%, -50%) scale(3);
+    }
+
+    .mic::before {
+        width: 220px;
+        height: 220px;
+    }
+
+    .mic::after {
+        width: 160px;
+        height: 160px;
+    }
+
+    .mic-shadow {
+        width: 220px;
+        height: 220px;
+    }
+
+    .menu-content button {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+
+    #audioPlayback {
+        width: 200px;
+    }
+
+    .toggle-menu {
+        top: 10px;
+        left: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.3rem;
+        top: 10px;
+    }
+
+    #transcript {
+        font-size: 1rem;
+        margin: 40px 10px;
+    }
+
+    .mic-icon {
+        transform: translate(-50%, -50%) scale(2.5);
+    }
+
+    .mic::before {
+        width: 180px;
+        height: 180px;
+    }
+
+    .mic::after {
+        width: 140px;
+        height: 140px;
+    }
+
+    .mic-shadow {
+        width: 180px;
+        height: 180px;
+    }
+
+    .menu-content {
+        width: 150px;
+    }
+
+    #audioPlayback {
+        width: 160px;
+    }
+
+    .hamburger {
+        font-size: 1.5em;
+        padding: 8px 12px;
+    }
 }
