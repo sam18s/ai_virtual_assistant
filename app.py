@@ -26,6 +26,7 @@ import webbrowser
 import urllib.parse
 import pytz
 from pdf_converter.routes import pdf_bp
+from speech_recog.routes import speech_bp 
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -39,7 +40,7 @@ db = SQLAlchemy(app)
 
 # Register Blueprints
 app.register_blueprint(pdf_bp, url_prefix='/pdf') 
-
+app.register_blueprint(speech_bp, url_prefix='/speech')
 
 dictionary = PyDictionary()
 translator = Translator()
