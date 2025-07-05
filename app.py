@@ -139,17 +139,6 @@ def close_program(program_name):
         return f"Closed {program_name}."
     except Exception as e:
         return f"Sorry, I couldn't close {program_name}."
-    
-# def play_music_on_youtube():
-#     speak("Which song do you want to play?")
-#     song = take_command()
-#     if song:
-#         speak(f"Playing {song} on YouTube.")
-#         pywhatkit.playonyt(song)
-#         return f"Playing {song} on YouTube."
-#     else:
-#         return "Sorry, I didn't catch the song name."
-
 
 def play_music_on_youtube():
     command = take_command()
@@ -163,14 +152,6 @@ def play_music_on_youtube():
 def check_internet_speed():
     webbrowser.open("https://www.speedtest.net/")
     return "Opening Speedtest to check your internet speed."
-
-# def chat_with_huggingface(prompt):
-#     try:
-#         response = generator(prompt, max_length=100, num_return_sequences=1)
-#         return response[0]['generated_text']
-#     except Exception as e:
-#         return f"HuggingFace Error: {str(e)}"
-
 
 def set_alarm(alarm_time):
     def alarm():
@@ -348,12 +329,6 @@ def execute_command():
 
     if "how are you" in text or "kaise ho" in text:
         ai_response = "I am absolutely fine. What about you?"
-    
-    # elif "ask with ai" in text:
-    #     query = text.replace("ask with ai", "").strip()
-    #     if query:
-    #         ai_response = f"Asking AI: {query}"
-    #         webbrowser.open(f"https://chat.openai.com/?q={query}")
 
     # Ask with AI (ChatGPT)
     elif "ask with ai" in text:
@@ -390,16 +365,6 @@ def execute_command():
     elif 'date' in text or 'day' in text:
         current_date = datetime.now().strftime("%A, %d %B %Y")
         ai_response = f"Today is {current_date}."
-
-    # elif "search on youtube" in text:
-    #     query = text.replace("search on youtube", "").strip()
-    #     if query:
-    #         ai_response = search_youtube(query)
-
-    # elif "search on google" in text:
-    #     query = text.replace("search on google", "").strip()
-    #     if query:
-    #         ai_response = search_google(query)
 
     # Search on Google
     elif "search on google" in text or "google search" in text:
@@ -458,7 +423,7 @@ def execute_command():
     elif "good night" in text:
         ai_response = "Good night! Sweet dreams 🌙"
 
-    elif "hello" in text or "hi" in text:
+    elif "hello" in text or "hii" in text:
         ai_response = "Hello! How can I assist you today?"
 
     elif "love you" in text:
@@ -488,64 +453,12 @@ def execute_command():
 
     elif 'joke' in text:
         ai_response = pyjokes.get_joke()
-    
 
-    # elif "play music on youtube" in text:
-    #     ai_response = play_music_on_youtube()
-
-    # # Play music on YouTube
-    # elif "play music on youtube" in text or "play song on youtube" in text:
-    #     query = text.replace("play music on youtube", "").replace("play song on youtube", "").strip()
-    #     if query:
-    #         url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
-    #         ai_response = f"Searching YouTube for {query}"
-    #         return jsonify({'ai_response': ai_response, 'url': url})
-    #     else:
-    #         ai_response = "What song would you like me to play on YouTube?"
-    #         return jsonify({'ai_response': ai_response})
-
-
-    # elif "play music on youtube" in text:
-    #     query = text.replace("play music on youtube", "").strip()
-    #     search_query = query if query else "music"
-    #     url = f"https://www.youtube.com/results?search_query={search_query.replace(' ', '+')}"
-    #     webbrowser.open(url)
-    #     ai_response = f"Searching YouTube for {search_query}."
-        
-    # elif "check internet speed" in text:
-    #     ai_response = check_internet_speed()
 
     # Check internet speed
     elif "check internet speed" in text or "speed test" in text:
         ai_response = "Opening Speedtest to check your internet speed."
         return jsonify({'ai_response': ai_response, 'url': site_urls['speedtest']})
-
-
-    # elif "translate" in text:
-    #     try:
-    #         # Sample input: "translate how are you to hindi"
-    #         parts = text.split("to")
-    #         if len(parts) == 2:
-    #             sentence = parts[0].replace("translate", "").strip()
-    #             target_lang = parts[1].strip().lower()
-
-    #             lang_codes = {
-    #                 "hindi": "hi", "english": "en", "marathi": "mr",
-    #                 "french": "fr", "spanish": "es", "german": "de",
-    #                 "telugu": "te", "tamil": "ta", "gujarati": "gu",
-    #                 "japanese": "ja", "chinese": "zh-cn"
-    #             }
-
-    #             if target_lang in lang_codes:
-    #                 translated = translator.translate(sentence, dest=lang_codes[target_lang])
-    #                 ai_response = f"'{sentence}' in {target_lang.capitalize()} is: '{translated.text}'"
-    #             else:
-    #                 ai_response = f"Sorry, I don't support the language '{target_lang}' yet."
-    #         else:
-    #             ai_response = "Please say something like: translate how are you to Hindi."
-    #     except Exception as e:
-    #         ai_response = f"Translation error: {str(e)}"
-
 
     elif "set alarm" in text:
         ai_response = "What time should I set the alarm?"
@@ -572,28 +485,6 @@ def execute_command():
         to_currency = take_command().upper()
         ai_response = convert_currency(amount, from_currency, to_currency)
 
-    
-    # elif "nearby" in text or "find" in text or "location" in text:
-    #     try:
-    #         # Handle phrases like "find hospital", "nearby petrol pump", etc.
-    #         query = ""
-    #         if "nearby" in text:
-    #             query = text.split("nearby")[-1].strip()
-    #         elif "find" in text:
-    #             query = text.split("find")[-1].strip()
-    #         elif "location" in text:
-    #             query = text.split("find")[-1].strip()
-
-    #         if query:
-    #             search_query = urllib.parse.quote(query + " near me")
-    #             maps_url = f"https://www.google.com/maps/search/{search_query}"
-    #             webbrowser.open(maps_url)
-    #             ai_response = f"Searching for {query} near you..."
-    #         else:
-    #             ai_response = "Please specify what you're looking for nearby."
-
-    #     except Exception as e:
-    #         ai_response = f"Sorry, I couldn't search maps: {str(e)}"
 
     # Location/nearby places
     elif "nearby" in text or "find" in text or "location" in text:
@@ -634,11 +525,6 @@ def execute_command():
         else:
             ai_response = "What would you like me to search on Google?"
             return jsonify({'ai_response': ai_response})
-
-    # elif "search" in text or "who is" in text or "what is" in text:
-    #     query = text.replace("search", "").replace("who is", "").replace("what is", "").strip()
-    #     ai_response = f"Searching Google for {query}"
-    #     webbrowser.open(f"https://www.google.com/search?q={query}")
 
     print(f"AI Response: {ai_response}")
     return jsonify({"user_input": text, "ai_response": ai_response}), 200
