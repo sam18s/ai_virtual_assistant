@@ -25,6 +25,7 @@ from googletrans import Translator
 import webbrowser
 import urllib.parse
 import pytz
+from pdf_converter.routes import pdf_bp
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -35,6 +36,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# Register Blueprints
+app.register_blueprint(pdf_bp, url_prefix='/pdf') 
+
 
 dictionary = PyDictionary()
 translator = Translator()
