@@ -331,7 +331,7 @@ def execute_command():
         ai_response = "I am absolutely fine. What about you?"
 
     # Ask with AI (ChatGPT)
-    elif "ask with ai" in text:
+    elif "ask with ai" in text or "lucy" in text:
         query = text.replace("ask with ai", "").strip()
         if query:
             encoded_query = urllib.parse.quote(query)
