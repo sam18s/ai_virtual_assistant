@@ -332,7 +332,7 @@ def execute_command():
 
     # Ask with AI (ChatGPT)
     elif "ask with ai" in text or "lucy" in text:
-        query = text.replace("ask with ai", "").strip()
+        query = text.replace("ask with ai", "").replace("lucy", "").strip()
         if query:
             encoded_query = urllib.parse.quote(query)
             url = f"https://chat.openai.com/?q={encoded_query}"
@@ -531,8 +531,26 @@ def execute_command():
         word = text.replace("antonyms of", "").strip()
         ai_response = get_word_antonyms(word)
 
-    elif "search" in text or "who is" in text or "what is" in text:
-        query = text.replace("search on google", "").replace("google search", "").strip()
+    # elif "search" in text or "who is" in text or "what is" in text:
+    #     query = text.replace("search on google", "").replace("google search", "").strip()
+    #     if query:
+    #         url = f"https://www.google.com/search?q={urllib.parse.quote(query)}"
+    #         ai_response = f"Searching Google for {query}"
+    #         return jsonify({'ai_response': ai_response, 'url': url})
+    #     else:
+    #         ai_response = "What would you like me to search on Google?"
+    #         return jsonify({'ai_response': ai_response})
+
+    elif any(x in text.lower() for x in ["search", "who is", "what is", "google search", "search on google"]):
+        # Convert to lowercase for consistent processing
+        query = text.lower()
+
+        # Remove trigger phrases from the beginning
+        for phrase in ["search on google", "google search", "search", "who is", "what is"]:
+            if query.startswith(phrase):
+                query = query.replace(phrase, "", 1).strip()
+                break  # Remove only one matching prefix
+
         if query:
             url = f"https://www.google.com/search?q={urllib.parse.quote(query)}"
             ai_response = f"Searching Google for {query}"
@@ -540,6 +558,7 @@ def execute_command():
         else:
             ai_response = "What would you like me to search on Google?"
             return jsonify({'ai_response': ai_response})
+
 
     print(f"AI Response: {ai_response}")
     return jsonify({"user_input": text, "ai_response": ai_response}), 200
