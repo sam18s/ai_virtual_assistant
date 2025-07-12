@@ -2,7 +2,9 @@
 
 > An interactive, AI-powered virtual assistant that understands your **voice** and **click commands**, responds intelligently, and performs daily tasks — just like Alexa or Siri!
 
-🌐 **Live Demo:** [Click here to try it out](https://ai-virtual-assistant-rkhu.onrender.com)   https://ai-virtual-assistant-rkhu.onrender.com
+🌐 **Live Demo:** [Click here to try it out](https://ai-virtual-assistant-rkhu.onrender.com)   
+https://ai-virtual-assistant-rkhu.onrender.com
+
 ⏳ *Note: The app may take up to 1 minute to start since it's hosted on Render.*
 
 ---
@@ -50,6 +52,7 @@ The **AI Virtual Assistant** is a smart web application that offers seamless int
 ## 🌐 Live Project Link
 
 👉 **Try it here:** [https://ai-virtual-assistant-rkhu.onrender.com](https://ai-virtual-assistant-rkhu.onrender.com)
+
 ⏳ *Please be patient while the Render server wakes up.*
 
 ---
