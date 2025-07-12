@@ -1,6 +1,5 @@
-# 🎙️ AI Virtual Assistant — Smart Voice & Click-Based AI Assistant
-
-> An interactive, AI-powered virtual assistant that understands your **voice** and **click commands**, responds intelligently, and performs daily tasks — just like Alexa or Siri!
+# 🤖 Lucy — Your Smart AI Virtual Assistant
+> An interactive, AI-powered virtual assistant that understands your **voice** and **click commands**, responds intelligently, and performs daily tasks — just like Alexa or Siri! 🎙️ AI Virtual Assistant — Smart Voice & Click-Based AI Assistant
 
 🌐 **Live Demo:** [Click here to try it out](https://ai-virtual-assistant-rkhu.onrender.com)   
 https://ai-virtual-assistant-rkhu.onrender.com
@@ -19,9 +18,9 @@ The **AI Virtual Assistant** is a smart web application that offers seamless int
 
 * 🎤 **Dual Interaction**: Responds to voice input and clickable commands
 * 🗣️ **Talks Back**: Uses text-to-speech to give human-like responses
-* 🧠 **Wake Word Detection**: Only listens when you say the wake word (e.g., “Lucy”)
+* 🧠 **Wake Word Detection**: listens when you say the wake word (e.g., “Lucy”)
 * 📜 **Command History**: Keeps track of your interactions
-* ⚙️ **Utility Functions**: Open Google, YouTube, Camera, PDF tools, and more
+* ⚙️ **Utility Functions**: Open Google, YouTube, PDF tools, and more
 * 🔐 **Secure Access**: Login/signup system with password protection
 * 🌙 **Dark-Themed UI**: Smooth animations and modern design
 * ⚡ **Fast & Modular**: Built with a clean, responsive backend and frontend
@@ -31,10 +30,11 @@ The **AI Virtual Assistant** is a smart web application that offers seamless int
 ## 🚀 What It Can Do
 
 * Answer general knowledge questions
-* Open apps or websites via voice
-* Convert text or image to PDF
-* Tell jokes, play music, and fetch info from Wikipedia
-* Act like a personal AI chatbot
+* Open apps/websites like Google, YouTube, Amazon
+* Convert text or images to PDF
+* Tell jokes, play music, fetch information
+* Interact through a predefined set of commands
+* Maintain a session-based interaction history
 
 ---
 
@@ -46,6 +46,22 @@ The **AI Virtual Assistant** is a smart web application that offers seamless int
 * **Wikipedia, PyWhatKit, Webbrowser** (Web automation & info retrieval)
 * **Authentication System** (Secure login & session handling)
 * **Dark UI Theme** (For a professional, modern experience)
+
+---
+
+## 📌 Important Note
+
+> 🧠 **Lucy only works with pre-defined commands**
+> Lucy is designed to respond to a limited but powerful set of commands like:
+> • “Open Google”
+> • “Search on youtube song”
+> • “Convert text to PDF”
+> • “Tell me a joke”
+> • “Search Wikipedia”
+> > • “Lucy ...”
+> • and many more!
+
+You can also trigger commands through the user interface with a simple click.
 
 ---
 
